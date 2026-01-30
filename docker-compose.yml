@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.8"
 
 services:
   mysql-db:
@@ -25,31 +25,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-  nexus-repo:
-    image: sonatype/nexus3:latest
-    container_name: nexus_repo
-    restart: always
-    environment:
-      - NEXUS_SECURITY_RANDOMPASSWORD=false
-    volumes:
-      - nexus_data:/nexus-data
-    ports:
-      - "8081:8081"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
-    mem_limit: 1.8g
-    networks:
-      - app_network
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  app:
+        
+  sprong-app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -66,9 +43,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/myapplication
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
-      NEXUS_URL: http://nexus-repo:8081
-      NEXUS_USERNAME: admin
-      NEXUS_PASSWORD: admin
     restart: on-failure
     mem_limit: 700m
     healthcheck:
