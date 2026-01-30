@@ -1,27 +1,94 @@
 version: "3.9"
 
 services:
-  db:
+  mysql-db:
     image: mysql:8.0
     container_name: mysql-db
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: appdb
-      MYSQL_USER: ROOT
-      MYSQL_PASSWORD: 1234
+    volumes:
+      - mysql_data:/var/lib/mysql
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD","mysqladmin","ping","-h","http://localhost:8085"]
+      test: ["CMD","mysqladmin","ping","-h","localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
+    mem_limit: 1g
+    networks:
+      - app_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+  nexus-repo:
+    image: sonatype/nexus3:latest
+    container_name: nexus_repo
+    restart: always
+    environment:
+      - NEXUS_SECURITY_RANDOMPASSWORD=false
+    volumes:
+      - nexus_data:/nexus-data
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    mem_limit: 1.8g
+    networks:
+      - app_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: maitra2517/springboot-app:latest
     container_name: springboot-app
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      nexus-repo:
+        condition: service_healthy
     ports:
       - "8085:8085"
-    depends_on:
-      db:
-        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/myapplication
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234
+      NEXUS_URL: http://nexus-repo:8081
+      NEXUS_USERNAME: admin
+      NEXUS_PASSWORD: admin
+    restart: on-failure
+    mem_limit: 700m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  mysql_data:
+  nexus_data:
+
+networks:
+  app_network:
+    driver: bridge
+   
