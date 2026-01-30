@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: ROOT
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","http://localhost:8085"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: maitra2517/springboot-app:latest
+    container_name: springboot-app
+    ports:
+      - "8085:8085"
+    depends_on:
+      db:
+        condition: service_healthy
