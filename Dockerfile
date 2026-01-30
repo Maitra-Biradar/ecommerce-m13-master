@@ -11,4 +11,8 @@ FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8085
+ENV SPRING_DATASOURCE_URL=jdbc:mysql://mysql-container:3306/myapplication
+ENV SPRING_DATASOURCE_USERNAME=root
+ENV SPRING_DATASOURCE_PASSWORD=1234
+ENV SERVER_PORT=8085
 ENTRYPOINT ["java","-jar","app.jar"]
