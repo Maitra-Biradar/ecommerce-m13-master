@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Merchant Verification | ShopEase</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --secondary: #7209b7;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --success: #2ecc71;
+        --danger: #e74c3c;
+        --gray: #6c757d;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+        --merchant: #f39c12;
+        --merchant-dark: #e67e22;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--light);
+        color: var(--dark);
+        background-image: radial-gradient(#f39c1220 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+
+      /* Accessibility skip link */
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: var(--primary);
+        color: white;
+        padding: 8px;
+        z-index: 1001;
+        transition: top 0.3s;
+      }
+
+      .skip-link:focus {
+        top: 0;
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 5%;
+        background-color: #ffffff;
+        box-shadow: var(--shadow);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+      }
+
+      .logo a {
+        text-decoration: none;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+      }
+
+      .logo i {
+        font-size: 1.8rem;
+        color: var(--primary);
+        margin-right: 10px;
+      }
+
+      .logo h1 {
+        font-size: 1.8rem;
+        color: var(--primary);
+        font-weight: 700;
+      }
+
+      .nav-buttons {
+        display: flex;
+        gap: 15px;
+      }
+
+      .nav-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .login-btn {
+        background-color: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+      }
+
+      .login-btn:hover {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .register-btn {
+        background-color: var(--primary);
+        color: white;
+        position: relative;
+      }
+
+      .register-btn:hover {
+        background-color: var(--primary-dark);
+      }
+
+      /* Dropdown styles */
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        min-width: 220px;
+        background-color: #ffffff;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        z-index: 1;
+        overflow: hidden;
+        transition: var(--transition);
+      }
+
+      .dropdown:hover .dropdown-content {
+        display: block;
+        animation: fadeIn 0.3s;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .dropdown-option {
+        padding: 12px 16px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        color: var(--dark);
+        transition: var(--transition);
+      }
+
+      .dropdown-option i {
+        margin-right: 10px;
+        color: var(--primary);
+      }
+
+      .dropdown-option:hover {
+        background-color: #f1f5ff;
+        color: var(--primary);
+      }
+
+      /* Mobile menu button */
+      .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--primary);
+        cursor: pointer;
+      }
+
+      /* Mobile menu */
+      .mobile-menu {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        z-index: 999;
+      }
+
+      .mobile-menu .nav-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .mobile-menu .nav-btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .mobile-menu .dropdown {
+        width: 100%;
+      }
+
+      .mobile-menu .dropdown-content {
+        position: static;
+        display: none;
+        width: 100%;
+        box-shadow: none;
+        margin-top: 10px;
+      }
+
+      .mobile-menu .dropdown.active .dropdown-content {
+        display: block;
+      }
+
+      .alert {
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        z-index: 1001;
+        display: flex;
+        align-items: center;
+        min-width: 300px;
+        max-width: 500px;
+        animation: slideDown 0.3s, fadeOut 0.5s 1.5s forwards;
+      }
+
+      .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid var(--success);
+      }
+
+      .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid var(--danger);
+      }
+
+      .alert-icon {
+        margin-right: 10px;
+        font-size: 1.2rem;
+      }
+
+      @keyframes slideDown {
+        from {
+          transform: translate(-50%, -20px);
+          opacity: 0;
+        }
+        to {
+          transform: translate(-50%, 0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+
+      .otp-container {
+        max-width: 450px;
+        width: 90%;
+        margin: 50px auto;
+        padding: 40px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        animation: fadeIn 0.5s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .otp-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(
+          90deg,
+          var(--merchant) 0%,
+          var(--merchant-dark) 100%
+        );
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .otp-header {
+        margin-bottom: 30px;
+      }
+
+      .otp-header h2 {
+        font-size: 1.8rem;
+        color: var(--dark);
+        margin-bottom: 10px;
+      }
+
+      .otp-header p {
+        color: var(--gray);
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      .otp-icon {
+        font-size: 3rem;
+        color: var(--merchant);
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .merchant-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-top: 10px;
+        box-shadow: 0 2px 5px rgba(243, 156, 18, 0.3);
+      }
+
+      .otp-form {
+        margin-top: 20px;
+      }
+
+      /* Individual digit inputs for better UX */
+      .otp-digits {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 25px;
+      }
+
+      .digit-input {
+        width: 50px;
+        height: 60px;
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-align: center;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        transition: var(--transition);
+        background-color: white;
+        color: var(--dark);
+      }
+
+      .digit-input:focus {
+        border-color: var(--merchant);
+        box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.2);
+        outline: none;
+      }
+
+      .digit-input.filled {
+        border-color: var(--merchant);
+        background-color: rgba(243, 156, 18, 0.05);
+      }
+
+      .submit-button {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .submit-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .submit-button:disabled {
+        background: linear-gradient(135deg, #f39c1280 0%, #d3540080 100%);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .submit-button::after {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(45deg);
+        transition: all 0.5s;
+        opacity: 0;
+      }
+
+      .submit-button:hover::after {
+        opacity: 1;
+        transform: rotate(45deg) translate(10%, 10%);
+      }
+
+      .submit-button.ready::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.2) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        animation: shimmer 1.5s infinite;
+      }
+
+      @keyframes shimmer {
+        100% {
+          left: 100%;
+        }
+      }
+
+      .resend-link {
+        display: block;
+        margin-top: 20px;
+        color: var(--merchant);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+      }
+
+      .resend-link:hover {
+        color: var(--merchant-dark);
+        text-decoration: underline;
+      }
+
+      .timer {
+        display: block;
+        margin-top: 15px;
+        color: var(--gray);
+        font-size: 0.9rem;
+      }
+
+      .timer span {
+        font-weight: 600;
+        color: var(--merchant);
+      }
+
+      .timer.expiring span {
+        color: var(--danger);
+        animation: pulse 1s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .merchant-benefits {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px dashed #ddd;
+      }
+
+      .merchant-benefits h3 {
+        font-size: 1.1rem;
+        color: var(--dark);
+        margin-bottom: 15px;
+      }
+
+      .benefits-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-align: left;
+        transition: var(--transition);
+        padding: 8px;
+        border-radius: 8px;
+      }
+
+      .benefit-item:hover {
+        background-color: rgba(243, 156, 18, 0.05);
+        transform: translateX(5px);
+      }
+
+      .benefit-icon {
+        min-width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 5px rgba(243, 156, 18, 0.3);
+      }
+
+      .benefit-text {
+        font-size: 0.9rem;
+        color: var(--gray);
+      }
+
+      .next-steps {
+        margin-top: 25px;
+        padding: 15px;
+        background-color: #fff9e6;
+        border-left: 3px solid var(--merchant);
+        border-radius: 5px;
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .next-steps::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(
+          135deg,
+          transparent 50%,
+          rgba(243, 156, 18, 0.1) 50%
+        );
+        border-radius: 0 0 0 60px;
+      }
+
+      .next-steps h4 {
+        color: var(--merchant-dark);
+        font-size: 1rem;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .next-steps p {
+        color: var(--gray);
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      /* Success animation */
+      .success-checkmark {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        position: relative;
+        display: none;
+      }
+
+      .success-checkmark .check-icon {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        border-radius: 50%;
+        box-sizing: content-box;
+        border: 4px solid var(--merchant);
+      }
+
+      .success-checkmark .check-icon::before {
+        top: 3px;
+        left: -2px;
+        width: 30px;
+        transform-origin: 100% 50%;
+        border-radius: 100px 0 0 100px;
+      }
+
+      .success-checkmark .check-icon::after {
+        top: 0;
+        left: 30px;
+        width: 60px;
+        transform-origin: 0 50%;
+        border-radius: 0 100px 100px 0;
+        animation: rotate-circle 4.25s ease-in;
+      }
+
+      .success-checkmark .check-icon::before,
+      .success-checkmark .check-icon::after {
+        content: "";
+        height: 100px;
+        position: absolute;
+        background: #ffffff;
+        transform: rotate(-45deg);
+      }
+
+      .success-checkmark .check-icon .icon-line {
+        height: 5px;
+        background-color: var(--merchant);
+        display: block;
+        border-radius: 2px;
+        position: absolute;
+        z-index: 10;
+      }
+
+      .success-checkmark .check-icon .icon-line.line-tip {
+        top: 46px;
+        left: 14px;
+        width: 25px;
+        transform: rotate(45deg);
+        animation: icon-line-tip 0.75s;
+      }
+
+      .success-checkmark .check-icon .icon-line.line-long {
+        top: 38px;
+        right: 8px;
+        width: 47px;
+        transform: rotate(-45deg);
+        animation: icon-line-long 0.75s;
+      }
+
+      .success-checkmark .check-icon .icon-circle {
+        top: -4px;
+        left: -4px;
+        z-index: 10;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        position: absolute;
+        box-sizing: content-box;
+        border: 4px solid rgba(243, 156, 18, 0.3);
+      }
+
+      .success-checkmark .check-icon .icon-fix {
+        top: 8px;
+        width: 5px;
+        left: 26px;
+        z-index: 1;
+        height: 85px;
+        position: absolute;
+        transform: rotate(-45deg);
+        background-color: #ffffff;
+      }
+
+      @keyframes rotate-circle {
+        0% {
+          transform: rotate(-45deg);
+        }
+        5% {
+          transform: rotate(-45deg);
+        }
+        12% {
+          transform: rotate(-405deg);
+        }
+        100% {
+          transform: rotate(-405deg);
+        }
+      }
+
+      @keyframes icon-line-tip {
+        0% {
+          width: 0;
+          left: 1px;
+          top: 19px;
+        }
+        54% {
+          width: 0;
+          left: 1px;
+          top: 19px;
+        }
+        70% {
+          width: 50px;
+          left: -8px;
+          top: 37px;
+        }
+        84% {
+          width: 17px;
+          left: 21px;
+          top: 48px;
+        }
+        100% {
+          width: 25px;
+          left: 14px;
+          top: 46px;
+        }
+      }
+
+      @keyframes icon-line-long {
+        0% {
+          width: 0;
+          right: 46px;
+          top: 54px;
+        }
+        65% {
+          width: 0;
+          right: 46px;
+          top: 54px;
+        }
+        84% {
+          width: 55px;
+          right: 0px;
+          top: 35px;
+        }
+        100% {
+          width: 47px;
+          right: 8px;
+          top: 38px;
+        }
+      }
+
+      .footer {
+        background-color: #1a1a1a;
+        color: white;
+        padding: 3rem 5% 1.5rem;
+        margin-top: auto;
+      }
+
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .footer-logo {
+        display: flex;
+        align-items: center;
+      }
+
+      .footer-logo i {
+        font-size: 1.5rem;
+        color: white;
+        margin-right: 10px;
+      }
+
+      .footer-logo h2 {
+        font-size: 1.5rem;
+        color: white;
+      }
+
+      .social-icons-footer {
+        display: flex;
+        gap: 15px;
+      }
+
+      .social-icons-footer a {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+      }
+
+      .social-icons-footer a:hover {
+        background-color: var(--merchant);
+        transform: translateY(-3px);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 1.5rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+      }
+
+      /* Responsive styles */
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 1rem 3%;
+        }
+
+        .nav-buttons {
+          display: none;
+        }
+
+        .mobile-menu-btn {
+          display: block;
+        }
+
+        .otp-container {
+          padding: 30px 20px;
+          margin: 30px auto;
+        }
+
+        .otp-header h2 {
+          font-size: 1.5rem;
+        }
+
+        .otp-digits {
+          gap: 5px;
+        }
+
+        .digit-input {
+          width: 40px;
+          height: 50px;
+          font-size: 1.2rem;
+        }
+
+        .footer-content {
+          flex-direction: column;
+          gap: 20px;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <nav class="navbar">
+      <div class="logo">
+        <a href="/">
+          <i class="fas fa-shopping-bag"></i>
+          <h1>ShopEase</h1>
+        </a>
+      </div>
+
+      <button
+        class="mobile-menu-btn"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+      >
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <div class="nav-buttons">
+        <a href="/login"><button class="nav-btn login-btn">Login</button></a>
+        <div class="dropdown">
+          <button class="nav-btn register-btn">
+            Register <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="dropdown-content">
+            <a href="/admin/register" class="dropdown-option">
+              <i class="fas fa-user-shield"></i> Admin Register
+            </a>
+            <a href="/merchant/register" class="dropdown-option">
+              <i class="fas fa-store"></i> Merchant Register
+            </a>
+            <a href="/customer/register" class="dropdown-option">
+              <i class="fas fa-user"></i> Customer Register
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Mobile menu (hidden by default) -->
+    <div class="mobile-menu">
+      <div class="nav-buttons">
+        <a href="/login"><button class="nav-btn login-btn">Login</button></a>
+        <div class="dropdown">
+          <button class="nav-btn register-btn mobile-dropdown-toggle">
+            Register <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="dropdown-content">
+            <a href="/admin/register" class="dropdown-option">
+              <i class="fas fa-user-shield"></i> Admin Register
+            </a>
+            <a href="/merchant/register" class="dropdown-option">
+              <i class="fas fa-store"></i> Merchant Register
+            </a>
+            <a href="/customer/register" class="dropdown-option">
+              <i class="fas fa-user"></i> Customer Register
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert messages that will disappear after 2 seconds -->
+    <div th:if="${session.pass}" class="alert alert-success">
+      <i class="fas fa-check-circle alert-icon"></i>
+      <span th:text="${session.pass}"></span>
+    </div>
+
+    <div th:if="${session.fail}" class="alert alert-danger">
+      <i class="fas fa-exclamation-circle alert-icon"></i>
+      <span th:text="${session.fail}"></span>
+    </div>
+
+    <th:block th:text="${@messageRemover.remove()}"></th:block>
+
+    <main id="main-content">
+      <div class="otp-container">
+        <div class="otp-icon">
+          <i class="fas fa-store-alt"></i>
+        </div>
+
+        <!-- Success animation (hidden by default) -->
+        <div class="success-checkmark" id="successCheckmark">
+          <div class="check-icon">
+            <span class="icon-line line-tip"></span>
+            <span class="icon-line line-long"></span>
+            <div class="icon-circle"></div>
+            <div class="icon-fix"></div>
+          </div>
+        </div>
+
+        <div class="otp-header">
+          <h2>Merchant Verification</h2>
+          <p>
+            We've sent a verification code to your email address. Please enter
+            the code below to verify your merchant account.
+          </p>
+          <span class="merchant-badge">
+            <i class="fas fa-store"></i> Merchant Account
+          </span>
+        </div>
+
+        <form
+          action="/merchant/otp"
+          method="post"
+          class="otp-form"
+          id="otpForm"
+        >
+          <!-- Individual digit inputs for better UX -->
+          <div class="otp-digits">
+            <input
+              type="text"
+              class="digit-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              required
+              aria-label="First digit"
+            />
+            <input
+              type="text"
+              class="digit-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+              aria-label="Second digit"
+            />
+            <input
+              type="text"
+              class="digit-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+              aria-label="Third digit"
+            />
+            <input
+              type="text"
+              class="digit-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+              aria-label="Fourth digit"
+            />
+            <input
+              type="text"
+              class="digit-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+              aria-label="Fifth digit"
+            />
+            <input
+              type="text"
+              class="digit-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+              aria-label="Sixth digit"
+            />
+          </div>
+
+          <!-- Hidden input to store the combined OTP value -->
+          <input type="hidden" name="otp" id="otpValue" />
+
+          <button
+            type="submit"
+            class="submit-button"
+            id="verifyButton"
+            disabled
+          >
+            <i class="fas fa-check-circle"></i> Verify Merchant Account
+          </button>
+        </form>
+
+        <div class="timer">
+          Time remaining: <span id="countdown">02:00</span>
+        </div>
+
+        <a
+          href="#"
+          class="resend-link"
+          id="resendLink"
+          style="display: none"
+          aria-label="Resend verification code"
+        >
+          <i class="fas fa-redo-alt"></i> Resend Verification Code
+        </a>
+
+        <div class="merchant-benefits">
+          <h3>Benefits of Becoming a Verified Merchant</h3>
+          <div class="benefits-list">
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <i class="fas fa-globe"></i>
+              </div>
+              <div class="benefit-text">
+                Reach millions of customers on our platform
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div class="benefit-text">
+                Access to sales analytics and business insights
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <i class="fas fa-money-bill-wave"></i>
+              </div>
+              <div class="benefit-text">
+                Secure payment processing and fast settlements
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <i class="fas fa-tools"></i>
+              </div>
+              <div class="benefit-text">
+                Powerful tools to manage your inventory and orders
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="next-steps">
+          <h4><i class="fas fa-info-circle"></i> What's Next?</h4>
+          <p>
+            After verification, you'll be guided through setting up your
+            merchant profile and adding your first products. Our merchant
+            support team will be available to help you get started.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <i class="fas fa-shopping-bag"></i>
+          <h2>ShopEase</h2>
+        </div>
+        <div class="social-icons-footer">
+          <a href="#" aria-label="Facebook"
+            ><i class="fab fa-facebook-f"></i
+          ></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="Instagram"
+            ><i class="fab fa-instagram"></i
+          ></a>
+          <a href="#" aria-label="LinkedIn"
+            ><i class="fab fa-linkedin-in"></i
+          ></a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 ShopEase. All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Handle alerts
+        const removeAlerts = () => {
+          const alerts = document.querySelectorAll(".alert");
+          if (alerts.length > 0) {
+            setTimeout(function () {
+              alerts.forEach((alert) => {
+                alert.style.display = "none";
+              });
+            }, 2000);
+          }
+        };
+        removeAlerts();
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.querySelector(".mobile-menu-btn");
+        const mobileMenu = document.querySelector(".mobile-menu");
+
+        if (mobileMenuBtn && mobileMenu) {
+          mobileMenuBtn.addEventListener("click", function () {
+            if (mobileMenu.style.display === "block") {
+              mobileMenu.style.display = "none";
+              mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+              mobileMenuBtn.setAttribute("aria-expanded", "false");
+            } else {
+              mobileMenu.style.display = "block";
+              mobileMenuBtn.innerHTML = '<i class="fas fa-times"></i>';
+              mobileMenuBtn.setAttribute("aria-expanded", "true");
+            }
+          });
+        }
+
+        // Mobile dropdown toggle
+        const mobileDropdownToggles = document.querySelectorAll(
+          ".mobile-dropdown-toggle"
+        );
+
+        mobileDropdownToggles.forEach((toggle) => {
+          toggle.addEventListener("click", function (e) {
+            e.preventDefault();
+            const parent = this.parentElement;
+
+            if (parent.classList.contains("active")) {
+              parent.classList.remove("active");
+              this.querySelector("i").classList.remove("fa-chevron-up");
+              this.querySelector("i").classList.add("fa-chevron-down");
+            } else {
+              parent.classList.add("active");
+              this.querySelector("i").classList.remove("fa-chevron-down");
+              this.querySelector("i").classList.add("fa-chevron-up");
+            }
+          });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener("click", function (event) {
+          if (mobileMenu && mobileMenu.style.display === "block") {
+            const isClickInsideMenu = mobileMenu.contains(event.target);
+            const isClickOnMenuBtn = mobileMenuBtn.contains(event.target);
+
+            if (!isClickInsideMenu && !isClickOnMenuBtn) {
+              mobileMenu.style.display = "none";
+              mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+              mobileMenuBtn.setAttribute("aria-expanded", "false");
+            }
+          }
+        });
+
+        // OTP digit input handling
+        const digitInputs = document.querySelectorAll(".digit-input");
+        const otpForm = document.getElementById("otpForm");
+        const otpValue = document.getElementById("otpValue");
+
+        // Focus the first input on page load
+        digitInputs[0].focus();
+
+        // Handle input in digit fields
+        digitInputs.forEach((input, index) => {
+          // Only allow numbers
+          input.addEventListener("input", function (e) {
+            this.value = this.value.replace(/[^0-9]/g, "");
+
+            if (this.value) {
+              this.classList.add("filled");
+            } else {
+              this.classList.remove("filled");
+            }
+
+            // If a digit is entered, move focus to the next input
+            if (this.value && index < digitInputs.length - 1) {
+              digitInputs[index + 1].focus();
+            }
+
+            // Update the hidden input with all digits
+            updateOtpValue();
+          });
+
+          // Handle backspace to go to previous input
+          input.addEventListener("keydown", function (e) {
+            if (e.key === "Backspace" && !this.value && index > 0) {
+              digitInputs[index - 1].focus();
+            }
+          });
+
+          // Handle paste event for the entire OTP
+          input.addEventListener("paste", function (e) {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData("text");
+            const digits = pastedData
+              .replace(/[^0-9]/g, "")
+              .split("")
+              .slice(0, 6);
+
+            if (digits.length > 0) {
+              // Fill in the inputs with the pasted digits
+              digits.forEach((digit, i) => {
+                if (i < digitInputs.length) {
+                  digitInputs[i].value = digit;
+                  if (digit) {
+                    digitInputs[i].classList.add("filled");
+                  }
+                }
+              });
+
+              // Focus the next empty input or the last one
+              const nextEmptyIndex =
+                digits.length < digitInputs.length
+                  ? digits.length
+                  : digitInputs.length - 1;
+              digitInputs[nextEmptyIndex].focus();
+
+              // Update the hidden input
+              updateOtpValue();
+            }
+          });
+        });
+
+        // Function to update the hidden input with the combined OTP value
+        function updateOtpValue() {
+          let otp = "";
+          digitInputs.forEach((input) => {
+            otp += input.value;
+          });
+          otpValue.value = otp;
+
+          // If all digits are filled, enable submit button
+          const verifyButton = document.getElementById("verifyButton");
+          if (otp.length === 6) {
+            verifyButton.disabled = false;
+            verifyButton.classList.add("ready");
+          } else {
+            verifyButton.disabled = true;
+            verifyButton.classList.remove("ready");
+          }
+        }
+
+        // Countdown timer for OTP expiration
+        const countdownEl = document.getElementById("countdown");
+        const resendLink = document.getElementById("resendLink");
+        const timerContainer = document.querySelector(".timer");
+        let timeLeft = 120; // 2 minutes in seconds
+        let countdownTimer;
+
+        function updateCountdown() {
+          const minutes = Math.floor(timeLeft / 60);
+          let seconds = timeLeft % 60;
+          seconds = seconds < 10 ? "0" + seconds : seconds;
+          countdownEl.textContent = `${minutes}:${seconds}`;
+
+          // Add expiring class when less than 30 seconds remain
+          if (timeLeft <= 30) {
+            timerContainer.classList.add("expiring");
+          }
+
+          if (timeLeft <= 0) {
+            clearInterval(countdownTimer);
+            countdownEl.textContent = "00:00";
+            resendLink.style.display = "block";
+
+            // Disable inputs and button when OTP expires
+            digitInputs.forEach((input) => {
+              input.disabled = true;
+            });
+            document.getElementById("verifyButton").disabled = true;
+          } else {
+            timeLeft--;
+          }
+        }
+
+        countdownTimer = setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Resend OTP functionality
+        resendLink.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          // Show loading state
+          this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+          this.style.pointerEvents = "none";
+
+          // Simulate API call to resend OTP
+          setTimeout(() => {
+            // Reset timer
+            timeLeft = 120;
+            countdownEl.style.color = "var(--merchant)";
+            timerContainer.classList.remove("expiring");
+            resendLink.style.display = "none";
+
+            // Reset the resend link text
+            resendLink.innerHTML =
+              '<i class="fas fa-redo-alt"></i> Resend Verification Code';
+            resendLink.style.pointerEvents = "auto";
+
+            // Re-enable inputs
+            digitInputs.forEach((input) => {
+              input.disabled = false;
+              input.value = "";
+              input.classList.remove("filled");
+            });
+
+            // Focus the first input
+            digitInputs[0].focus();
+
+            // Update the hidden input
+            updateOtpValue();
+
+            // Restart countdown
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(updateCountdown, 1000);
+
+            // Show success message
+            const alertContainer = document.createElement("div");
+            alertContainer.className = "alert alert-success";
+            alertContainer.innerHTML =
+              '<i class="fas fa-check-circle alert-icon"></i><span>Verification code has been resent to your email</span>';
+            document.body.appendChild(alertContainer);
+
+            setTimeout(() => {
+              alertContainer.style.opacity = "0";
+              setTimeout(() => alertContainer.remove(), 300);
+            }, 2000);
+          }, 1500);
+        });
+      });
+    </script>
+  </body>
+</html>
