@@ -18,7 +18,9 @@ pipeline {
     stages {
 
         stage('Checkout') {
-            when { expression { params.ACTION == 'build' } }
+            when {
+                expression { params.ACTION == 'build' || params.ACTION == 'deploy' }
+            }
             steps {
                 git branch: 'main',
                     url: 'https://github.com/Maitra-Biradar/ecommerce-m13-master.git'
@@ -33,7 +35,7 @@ pipeline {
         stage('Build Docker Image') {
             when { expression { params.ACTION == 'build' } }
             steps {
-                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+                sh 'docker build --pull -t $IMAGE_NAME:$IMAGE_TAG .'
             }
             post {
                 success { echo 'Docker image built successfully' }
@@ -46,7 +48,7 @@ pipeline {
             when { expression { params.ACTION == 'build' } }
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: "$DOCKER_CREDS",
+                    credentialsId: 'dockerhub-creds',
                     usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
@@ -91,6 +93,7 @@ pipeline {
             when { expression { params.ACTION == 'deploy' } }
             steps {
                 sh '''
+                  docker-compose pull
                   docker-compose down || true
                   docker-compose up -d
                 '''
@@ -119,14 +122,8 @@ pipeline {
     }
 
     post {
-        always {
-            echo 'Pipeline execution finished'
-        }
-        success {
-            echo 'Pipeline completed successfully'
-        }
-        failure {
-            echo 'Pipeline failed'
-        }
+        always  { echo 'Pipeline execution finished' }
+        success { echo 'Pipeline completed successfully' }
+        failure { echo 'Pipeline failed' }
     }
 }
