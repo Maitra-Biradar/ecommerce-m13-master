@@ -20,49 +20,27 @@ services:
     mem_limit: 1g
     networks:
       - app_network
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-        
-  sprong-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+
+  springboot-app:
     image: maitra2517/springboot-app:latest
     container_name: springboot-app
     depends_on:
       mysql-db:
         condition: service_healthy
-      nexus-repo:
-        condition: service_healthy
     ports:
       - "8085:8085"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/myapplication
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/appdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
     restart: on-failure
     mem_limit: 700m
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
     networks:
       - app_network
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
 volumes:
   mysql_data:
-  nexus_data:
 
 networks:
   app_network:
     driver: bridge
-   
