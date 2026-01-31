@@ -1,21 +1,14 @@
-# -------- Stage 1 : Build --------
+# ---------- Stage 1: Build ----------
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
-# Copy Maven settings first
-COPY settings.xml /root/.m2/settings.xml
-# Copy pom.xml and download dependencies
 COPY pom.xml .
-RUN mvn dependency:go-offline -s /root/.m2/settings.xml
-# Copy source code
+RUN mvn dependency:go-offline
 COPY src ./src
-# Build application
-RUN mvn clean package -DskipTests -s /root/.m2/settings.xml
+RUN mvn clean package -DskipTests
 
-
-# -------- Stage 2 : Run --------
-FROM eclipse-temurin:17-jre-jammy
+# ---------- Stage 2: Runtime ----------
+FROM eclipse-temurin:17-jre
 WORKDIR /app
-# Copy jar from build stage
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8085
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
